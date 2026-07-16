@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { 
-  ArrowRight, ShieldCheck, DollarSign, Clock, Globe, Lock, 
-  Users, CheckCircle2, ChevronDown, ChevronUp, Star, ChevronLeft, 
+import Image from "next/image";
+import {
+  ArrowRight, ShieldCheck, DollarSign, Clock, Globe, Lock,
+  Users, CheckCircle2, ChevronDown, ChevronUp, Star, ChevronLeft,
   Sparkles, Briefcase, Award, GraduationCap, Play, HelpCircle, Zap
 } from "lucide-react";
 
@@ -87,7 +88,12 @@ export default function LandingView({ onEnterPlatform }: LandingViewProps) {
       <header className="border-b border-slate-200/50 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 transition-colors">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <GraduationCap className="w-6 h-6 text-[#4F46E5]" />
+            <Image
+              src="/assets/images/logos/global-logo.png"
+              alt="Global Ready AIEval"
+              width={28}
+              height={28}
+            />
             <span className="text-xl font-extrabold text-[#3B28CC] dark:text-indigo-400 tracking-tight">
               Global Ready AIEval
             </span>
@@ -705,7 +711,12 @@ export default function LandingView({ onEnterPlatform }: LandingViewProps) {
       <footer className="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-900 py-12 px-6 transition-colors">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-400">
           <div className="flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-[#4F46E5]" />
+            <Image
+              src="/assets/images/logos/global-logo.png"
+              alt="Global Ready AIEval"
+              width={20}
+              height={20}
+            />
             <span className="font-extrabold text-[#3B28CC] dark:text-indigo-455">Global Ready AIEval</span>
             <span>&bull;</span>
             <span>Training Elite Evaluators Worldwide</span>

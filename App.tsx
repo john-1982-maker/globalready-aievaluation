@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import {
   BookOpen,
   Award,
@@ -26,7 +27,6 @@ import {
   Sparkles,
   BookCheck,
   ShieldAlert as FailWarning,
-  GraduationCap,
   ArrowLeft,
   Settings,
   LayoutGrid,
@@ -720,7 +720,13 @@ export default function App() {
           {/* Logo Brand Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <GraduationCap className="w-5.5 h-5.5 text-[#4F46E5] shrink-0" />
+              <Image
+                src="/assets/images/logos/global-logo.png"
+                alt="Global Ready AIEval"
+                width={22}
+                height={22}
+                className="shrink-0"
+              />
               <span className="text-lg font-extrabold text-[#3B28CC] dark:text-indigo-400 tracking-tight flex items-center">
                 Global Ready AIEval
               </span>

@@ -31,6 +31,7 @@ export async function getModuleCurriculum(): Promise<Module[]> {
     title: m.title,
     description: m.description ?? "",
     simulationIntro: m.simulation_intro ?? { scenario: "", objective: "" },
+    simSkillBoosts: m.sim_skill_boosts ?? {},
     lessons: (lessons ?? [])
       .filter((l) => l.module_id === m.id)
       .map((l) => ({
@@ -47,6 +48,7 @@ export async function getModuleCurriculum(): Promise<Module[]> {
         keyTakeaways: l.key_takeaways ?? [],
         practiceLab: l.practice_lab ?? [],
         quiz: l.quiz ?? [],
+        skillBoosts: l.skill_boosts ?? {},
       })),
     simulationTasks: (simulationTasks ?? [])
       .filter((t) => t.module_id === m.id)

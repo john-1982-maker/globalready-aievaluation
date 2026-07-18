@@ -106,6 +106,7 @@ export interface Lesson {
   keyTakeaways: string[];
   practiceLab: PracticeTask[]; // 3 practice tasks
   quiz: QuizQuestion[]; // 5 questions
+  skillBoosts?: Partial<UserStats["skills"]>;
 }
 
 export interface SimulationTask {
@@ -156,4 +157,5 @@ export interface Module {
   };
   simulationTasks: SimulationTask[];
   examQuestions: ExamQuestion[];
+  simSkillBoosts?: Partial<UserStats["skills"]>;
 }

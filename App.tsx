@@ -40,6 +40,7 @@ import {
 import { UserStats, Rank, Module, Lesson, Achievement } from "./types";
 import type { JobOpportunity } from "./data/jobs";
 import { syncUserProgress } from "./lib/actions/user-progress";
+import { LESSON_SKILL_BOOSTS } from "./data/skill-boosts";
 
 // Subcomponents
 import DashboardView from "./components/DashboardView";
@@ -61,6 +62,20 @@ import Part2Lesson6View from "./components/Part2Lesson6View";
 import Part2Lesson7View from "./components/Part2Lesson7View";
 import MembershipView from "./components/MembershipView";
 import AcceleratorHubView from "./components/AcceleratorHubView";
+
+function applySkillBoosts(
+  skills: UserStats["skills"],
+  boosts: Partial<UserStats["skills"]>,
+): UserStats["skills"] {
+  const updated = { ...skills };
+  (Object.keys(boosts) as (keyof UserStats["skills"])[]).forEach((key) => {
+    const boost = boosts[key];
+    if (typeof boost === "number") {
+      updated[key] = Math.min(100, updated[key] + boost);
+    }
+  });
+  return updated;
+}
 
 interface AppProps {
   userId: string;
@@ -207,6 +222,15 @@ export default function App({
   ) => {
     if (!activeLessonId) return;
 
+    const activeLesson = moduleCurriculum
+      .flatMap((m) => m.lessons)
+      .find((l) => l.id === activeLessonId);
+    // Part 2 lessons (p2_intro, p2_m1_l1..l7) are hardcoded standalone
+    // components, not rows in the lessons table, so they never match
+    // activeLesson above — fall back to the static transcription for them.
+    const lessonSkillBoosts =
+      activeLesson?.skillBoosts ?? LESSON_SKILL_BOOSTS[activeLessonId] ?? {};
+
     setStats((prev) => {
       const isAlreadyCompleted = prev.completedLessons.includes(activeLessonId);
       const newCompleted = isAlreadyCompleted
@@ -215,212 +239,9 @@ export default function App({
 
       // Dynamic skill upgrade offsets based on quiz completion grade
       const xpEarned = isAlreadyCompleted ? 20 : 120; // smaller bonus for review repetition
-      const updatedSkills = { ...prev.skills };
-
-      if (!isAlreadyCompleted) {
-        // Boost skills depending on lesson theme
-        if (activeLessonId === "p2_m1_l1") {
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 12,
-          );
-          updatedSkills.factChecking = Math.min(
-            100,
-            updatedSkills.factChecking + 10,
-          );
-          updatedSkills.instructionFollowing = Math.min(
-            100,
-            updatedSkills.instructionFollowing + 12,
-          );
-        } else if (activeLessonId === "p2_m1_l2") {
-          updatedSkills.instructionFollowing = Math.min(
-            100,
-            updatedSkills.instructionFollowing + 15,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 10,
-          );
-        } else if (activeLessonId === "p2_m1_l3") {
-          updatedSkills.factChecking = Math.min(
-            100,
-            updatedSkills.factChecking + 15,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 10,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 5,
-          );
-        } else if (activeLessonId === "p2_m1_l4") {
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 15,
-          );
-          updatedSkills.instructionFollowing = Math.min(
-            100,
-            updatedSkills.instructionFollowing + 10,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.reasoning = Math.min(100, updatedSkills.reasoning + 5);
-        } else if (activeLessonId === "p2_m1_l5") {
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 15,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 10,
-          );
-          updatedSkills.instructionFollowing = Math.min(
-            100,
-            updatedSkills.instructionFollowing + 10,
-          );
-          updatedSkills.reasoning = Math.min(100, updatedSkills.reasoning + 5);
-        } else if (activeLessonId === "p2_m1_l6") {
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 15,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.reasoning = Math.min(100, updatedSkills.reasoning + 10);
-          updatedSkills.factChecking = Math.min(
-            100,
-            updatedSkills.factChecking + 5,
-          );
-        } else if (activeLessonId === "p2_m1_l7") {
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 20,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.reasoning = Math.min(100, updatedSkills.reasoning + 10);
-        } else if (
-          activeLessonId === "les_foundations" ||
-          activeLessonId === "l1"
-        ) {
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 8,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 6,
-          );
-        } else if (
-          activeLessonId === "les_ranking" ||
-          activeLessonId === "l2"
-        ) {
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 12,
-          );
-          updatedSkills.reasoning = Math.min(100, updatedSkills.reasoning + 8);
-        } else if (activeLessonId === "les_safety" || activeLessonId === "l3") {
-          updatedSkills.safetyReview = Math.min(
-            100,
-            updatedSkills.safetyReview + 15,
-          );
-        } else if (
-          activeLessonId === "les_hallucinations" ||
-          activeLessonId === "l4"
-        ) {
-          updatedSkills.factChecking = Math.min(
-            100,
-            updatedSkills.factChecking + 14,
-          );
-        } else if (
-          activeLessonId === "les_instruction_following" ||
-          activeLessonId === "l5"
-        ) {
-          updatedSkills.instructionFollowing = Math.min(
-            100,
-            updatedSkills.instructionFollowing + 12,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 5,
-          );
-        } else if (activeLessonId === "m4_l1") {
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 12,
-          );
-          updatedSkills.reasoning = Math.min(100, updatedSkills.reasoning + 8);
-        } else if (activeLessonId === "m5_l1") {
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 10,
-          );
-        } else if (activeLessonId === "m2_l1") {
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 10,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 10,
-          );
-        } else if (activeLessonId === "m3_l1") {
-          updatedSkills.factChecking = Math.min(
-            100,
-            updatedSkills.factChecking + 12,
-          );
-          updatedSkills.promptEvaluation = Math.min(
-            100,
-            updatedSkills.promptEvaluation + 8,
-          );
-        } else if (activeLessonId === "m3_l2") {
-          updatedSkills.instructionFollowing = Math.min(
-            100,
-            updatedSkills.instructionFollowing + 12,
-          );
-          updatedSkills.annotation = Math.min(
-            100,
-            updatedSkills.annotation + 10,
-          );
-        } else if (activeLessonId === "l6") {
-          updatedSkills.annotation = Math.min(
-            100,
-            updatedSkills.annotation + 8,
-          );
-          updatedSkills.responseRanking = Math.min(
-            100,
-            updatedSkills.responseRanking + 6,
-          );
-          updatedSkills.factChecking = Math.min(
-            100,
-            updatedSkills.factChecking + 6,
-          );
-          updatedSkills.safetyReview = Math.min(
-            100,
-            updatedSkills.safetyReview + 6,
-          );
-        }
-      }
+      const updatedSkills = isAlreadyCompleted
+        ? prev.skills
+        : applySkillBoosts(prev.skills, lessonSkillBoosts);
 
       // Increment active streak count by 1 on completion
       const newStreak = isAlreadyCompleted
@@ -473,32 +294,10 @@ export default function App({
         ? prev.completedSimulations
         : [...prev.completedSimulations, simId];
 
-      const newSkills = { ...prev.skills };
-      if (!isAlreadyCompleted && score >= 70) {
-        if (activeModuleId === "m2") {
-          newSkills.factChecking = Math.min(100, newSkills.factChecking + 12);
-          newSkills.promptEvaluation = Math.min(
-            100,
-            newSkills.promptEvaluation + 10,
-          );
-        } else if (activeModuleId === "m3") {
-          newSkills.instructionFollowing = Math.min(
-            100,
-            newSkills.instructionFollowing + 15,
-          );
-          newSkills.annotation = Math.min(100, newSkills.annotation + 12);
-        } else if (activeModuleId === "m4") {
-          newSkills.responseRanking = Math.min(
-            100,
-            newSkills.responseRanking + 15,
-          );
-          newSkills.reasoning = Math.min(100, newSkills.reasoning + 12);
-        } else {
-          newSkills.factChecking = Math.min(100, newSkills.factChecking + 10);
-          newSkills.safetyReview = Math.min(100, newSkills.safetyReview + 8);
-          newSkills.annotation = Math.min(100, newSkills.annotation + 15);
-        }
-      }
+      const newSkills =
+        !isAlreadyCompleted && score >= 70
+          ? applySkillBoosts(prev.skills, activeModule.simSkillBoosts ?? {})
+          : prev.skills;
 
       return {
         ...prev,

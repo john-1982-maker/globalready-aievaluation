@@ -1,12 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 import { MODULE_CURRICULUM, ALL_ACHIEVEMENTS } from "../data/modules";
 import { DEFAULT_JOBS } from "../data/jobs";
+import { LESSON_SKILL_BOOSTS, MODULE_SIM_SKILL_BOOSTS } from "../data/skill-boosts";
 
 // One-off script: seeds the Supabase database from the existing mock
 // content in data/modules.ts and data/jobs.ts. Run with `npm run seed`
 // after applying supabase/migrations/0001_init.sql. Requires
 // NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in .env.local
 // (never commit the secret key).
+//
+// WARNING: once content is editable via the admin dashboard, re-running
+// this script will overwrite any admin edits to existing rows (it's an
+// upsert keyed by id) back to these static defaults. Safe to re-run only
+// for genuinely new rows or one-off backfills — not as routine maintenance.
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const secretKey = process.env.SUPABASE_SECRET_KEY;
@@ -27,6 +33,7 @@ async function seedModules() {
     title: m.title,
     description: m.description,
     simulation_intro: m.simulationIntro,
+    sim_skill_boosts: MODULE_SIM_SKILL_BOOSTS[m.id] ?? {},
     sort_order: index,
   }));
 
@@ -51,6 +58,7 @@ async function seedLessons() {
       key_takeaways: l.keyTakeaways,
       practice_lab: l.practiceLab,
       quiz: l.quiz,
+      skill_boosts: LESSON_SKILL_BOOSTS[l.id] ?? {},
       sort_order: index,
     })),
   );
